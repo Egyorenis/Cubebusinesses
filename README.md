@@ -17,7 +17,7 @@
             height: 100vh;
         }
 
-        #shop, #factory, #menu {
+        #shop, #factory, #menu, #fullscreen-button {
             position: absolute;
             background: white;
             border: 1px solid #ccc;
@@ -85,6 +85,7 @@
             </select>
             <button id="start-button">Start Game</button>
         </div>
+        <div id="fullscreen-button" style="left: 10px; top: 50px;">Fullscreen</button>
         <div id="game-over">Game Over</div>
         <canvas id="game-canvas"></canvas>
 
@@ -116,6 +117,8 @@
         let bills = 0;
         let factoryActive = false;
         let factoryInterval;
+        let billsAndTaxesTimer; // Timer for bills and taxes
+        const BILLS_AND_TAXES_INTERVAL = 20 * 60 * 1000; // 20 minutes in milliseconds
 
         document.getElementById('start-button').onclick = function() {
             isGameActive = true;
@@ -125,7 +128,40 @@
             spawnEnemies();
             gameLoop();
             document.getElementById('game-over').style.display = 'none'; // Hide game over message
+
+            // Start the bills and taxes timer
+            setTimeout(() => {
+                startBillAndTaxes();
+            }, BILLS_AND_TAXES_INTERVAL);
         };
+
+        function startBillAndTaxes() {
+            billsAndTaxesTimer = setInterval(() => {
+                // Check if player can pay taxes and bills
+                if (player.money > 0) {
+                    taxes += 0.1; // Example tax logic
+                    bills += 0.05; // Example bills logic
+                    if (player.money < taxes + bills) {
+                        alert('You lost due to unpaid taxes/bills!');
+                        isGameActive = false;
+                        document.getElementById('game-over').style.display = 'block';
+                        clearInterval(factoryInterval);
+                        clearInterval(billsAndTaxesTimer);
+                    } else {
+                        player.money -= (taxes + bills); // Deduct the taxes and bills from player's money
+                        taxes = 0; // Reset taxes after payment
+                        bills = 0; // Reset bills after payment
+                        document.getElementById('money-display').innerText = 'Money: $' + player.money;
+                    }
+                } else {
+                    alert('You lost all your money!');
+                    isGameActive = false;
+                    document.getElementById('game-over').style.display = 'block';
+                    clearInterval(factoryInterval);
+                    clearInterval(billsAndTaxesTimer);
+                }
+            }, BILLS_AND_TAXES_INTERVAL);
+        }
 
         document.getElementById('shop-button').onclick = function() {
             document.getElementById('shop-menu').style.display = 'block';
@@ -207,35 +243,25 @@
                 document.getElementById('money-display').innerText = 'Money: $' + player.money;
             }
 
-            // Taxes and bills logic
-            if (player.money > 0) {
-                taxes += 0.1; // Example tax logic
-                bills += 0.05; // Example bills logic
-                if (player.money < taxes + bills) {
-                    alert('You lost due to unpaid taxes/bills!');
-                    isGameActive = false;
-                    document.getElementById('game-over').style.display = 'block';
-                    clearInterval(factoryInterval);
-                }
-            } else {
+            // Check if player can pay taxes and bills
+            if (player.money <= 0) {
                 alert('You lost all your money!');
                 isGameActive = false;
                 document.getElementById('game-over').style.display = 'block';
                 clearInterval(factoryInterval);
+                clearInterval(billsAndTaxesTimer);
             }
         }
 
-        // Control player movement
-        window.addEventListener('keydown', function(e) {
-            if (isGameActive) {
-                if (e.key === 'ArrowUp') player.y -= 5;
-                if (e.key === 'ArrowDown') player.y += 5;
-                if (e.key === 'ArrowLeft') player.x -= 5;
-                if (e.key === 'ArrowRight') player.x += 5;
+        // Fullscreen functionality
+        document.getElementById('fullscreen-button').onclick = function() {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                document.documentElement.requestFullscreen();
             }
-        });
+        };
 
-        // Functionality for saving progress would go here
     </script>
 </body>
 </html>

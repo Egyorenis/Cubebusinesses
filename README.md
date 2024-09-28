@@ -72,7 +72,7 @@
 <body>
     <div id="game-container">
         <div id="shop">
-            <div id="money-display">Money: $0</div>
+            <div id="money-display">Money: $1</div>
             <button id="shop-button">Shop</button>
         </div>
         <div id="factory">
@@ -108,7 +108,7 @@
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
 
-        let player = { x: canvas.width / 2, y: canvas.height / 2, size: 20, money: 0, attackUpgrade: 0 };
+        let player = { x: canvas.width / 2, y: canvas.height / 2, size: 20, money: 1, attackUpgrade: 0 };
         let enemies = [];
         let isGameActive = false;
         let difficulty = 'normal';
@@ -120,7 +120,7 @@
         document.getElementById('start-button').onclick = function() {
             isGameActive = true;
             enemies = [];
-            player.money = 0;
+            player.money = 1; // Start with $1
             player.attackUpgrade = 0;
             spawnEnemies();
             gameLoop();
